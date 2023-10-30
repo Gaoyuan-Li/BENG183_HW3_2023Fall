@@ -55,11 +55,17 @@ conda install -c bioconda subread
 
 We do not specify any version here to let conda select the compatible version
 
-If you encounter any problem with the default settings, we recommend use the **<u>environment.yml</u>** (tested in ubuntu 22.04) in the repository to install the environment.
+If you encounter any problem with the default settings, we recommend use the 
+
+[environment.yml]: https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/blob/main/environment.yml
+
+ (tested in ubuntu 22.04) in the repository to install the environment.
 
 ```bash
 conda env create -f environment.yml
 ```
+
+Please change the prefix to your own path.
 
 ###### 1.2 Sequencing files
 
