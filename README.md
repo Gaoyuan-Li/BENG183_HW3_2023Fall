@@ -43,12 +43,20 @@ By the end of this tutorial, you should be able to:
 
 ## 1. Setting up the environment and downloading data
 
-### 1.1 Conda environment
+### 1.1 Setting up conda environment
+
+Note: This part can be skipped if you have done environment set up in previous assignments.
+
+To ensure reproducibility and consistency across different setups, it's recommended to use Conda, a package manager that can also handle virtual environments. In this section, we'll guide you through creating a Conda environment and installing the necessary tools for our RNA-seq pipeline.
 
 ```bash
 # create a new environment
 
 conda create -n beng183
+
+# activate the environment
+
+conda activate beng183
 
 # install all required packages
 
@@ -59,29 +67,43 @@ conda install -c bioconda samtools
 conda install -c bioconda subread
 ```
 
-We do not specify any version here to let conda select the compatible version.
+In the commands above, we're not specifying any version, allowing Conda to select versions that are compatible with each other.
 
-If you encounter any problem with the default settings, we recommend use the [environment.yml](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/blob/main/environment.yml) (tested in ubuntu 22.04) in the repository to install the environment.
+If you encounter any issues with the default installation commands, we provide an alternative approach. A tested [environment.yml](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/blob/main/environment.yml) file is available in the repository, which has been confirmed to work on Ubuntu 22.04:
 
 ```bash
 conda env create -f environment.yml
 ```
 
-Please change the prefix to your own path.
+Note: Ensure the `prefix` in the `environment.yml` file points to the appropriate path on your system. Adjust it as necessary.
 
-### 1.2 Sequencing files
+By following the steps above, you'll have a dedicated environment set up with all the tools required for the RNA-seq analysis pipeline. This ensures that the analysis is both reproducible and insulated from other software on your system
 
-Please download the sequencing files from the following link: https://drive.google.com/file/d/12qNoEYrJk6xbInxLHX3jOZXimvWLVSB6/view?usp=sharing
+### 1.2  Downloading and Preparing the Sequencing Data
 
-Or download  from this github repository [data_chrX ](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/data_chrX)(Note: each file was compressed due to the 100MB limitation in github repository. Please download each of the .gz files and put them in the same folder named data_chrX)
+#### 1.2.1 Options for Downloading the Data
 
-In bioinformatics and RNA-seq analyses, raw data files can be quite large. To save space and facilitate faster transfers, these files are often compressed. The `.gz` extension indicates a file compressed using the gzip (GNU zip) compression algorithm. Before processing these files, you may need to unzip them.
+- **From Google Drive**: 
 
-To unzip a gzip-compressed file, you can use the `gzip` command with the `-d` option, for example:
+  You can download the sequencing files directly from this [Google Drive link](https://drive.google.com/file/d/12qNoEYrJk6xbInxLHX3jOZXimvWLVSB6/view?usp=sharing).
+
+- **From GitHub**: 
+
+  Alternatively, the data is available in this [GitHub repository under `data_chrX`](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/data_chrX). Note that due to GitHub's 100MB file size limit, each file has been compressed. Download each `.gz` file and gather them in a folder named `data_chrX`.
+
+#### 1.2.2 Preparing the Data
+
+Given the size of RNA-seq files, they are often compressed using the gzip, resulting in a `.gz` extension. Before processing, it's essential to decompress these files.
+
+To decompress a gzip-compressed file, you can use the `gzip` command with the `-d` option, for example:
 
 ```
 gzip -d ERR188044_chrX_1.fastq.gz
 ```
+
+After running this command, you'll have the decompressed file ready for further processing in the RNA-seq pipeline.
+
+Once the files are downloaded and decompressed, you can proceed with quality checks, trimming, alignment, and other steps in the RNA-seq analysis workflow.
 
 ## 2. Quality Control with FastQC
 
@@ -333,6 +355,7 @@ dim(go[go$ONTOLOGY=='MF',])
 
 # Visualize the enriched GO terms using bar and dot plots
 barplot(go, showCategory=5, drop=T)
-dotplot(go, showCategory=5)
+#dotplot(go, showCategory=5)
 ```
 
+![GO](./figures/GO.png)
