@@ -33,8 +33,9 @@ By the end of this tutorial, you should be able to:
 5. **Gene Expression Quantification with FeatureCounts:**
    - Running FeatureCounts to quantify gene expression levels
    - Interpreting the output of FeatureCounts
-6. **Differentially expressed genes (BONUS):**
+6. **Differential Expression Analysis and Functional Annotation (BONUS):**
    - Using DESeq2 to identify the differentially expressed genes (DEGs)
+   - Generating functional annotation with clusterProfiler
 
 
 
@@ -58,7 +59,7 @@ conda install -c bioconda samtools
 conda install -c bioconda subread
 ```
 
-We do not specify any version here to let conda select the compatible version
+We do not specify any version here to let conda select the compatible version.
 
 If you encounter any problem with the default settings, we recommend use the [environment.yml](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/blob/main/environment.yml) (tested in ubuntu 22.04) in the repository to install the environment.
 
@@ -73,6 +74,14 @@ Please change the prefix to your own path.
 Please download the sequencing files from the following link: https://drive.google.com/file/d/12qNoEYrJk6xbInxLHX3jOZXimvWLVSB6/view?usp=sharing
 
 Or download  from this github repository [data_chrX ](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/data_chrX)(Note: each file was compressed due to the 100MB limitation in github repository. Please download each of the .gz files and put them in the same folder named data_chrX)
+
+In bioinformatics and RNA-seq analyses, raw data files can be quite large. To save space and facilitate faster transfers, these files are often compressed. The `.gz` extension indicates a file compressed using the gzip (GNU zip) compression algorithm. Before processing these files, you may need to unzip them.
+
+To unzip a gzip-compressed file, you can use the `gzip` command with the `-d` option, for example:
+
+```
+gzip -d ERR188044_chrX_1.fastq.gz
+```
 
 ### 2. Quality Control with FastQC
 
@@ -225,11 +234,105 @@ By examining the `ERR188044_counts.txt` file, you will see a table where each ro
 
 With the gene expression quantified, you can now proceed to downstream analyses, such as differential expression analysis, clustering, or pathway analysis, depending on your research questions.
 
-#### 6. Differentially expressed genes (BONUS)
+### 6. Differentially expressed genes (BONUS)
+
+#### 6.1 Downloading data
+
+Please download the raw_counts.csv from [data_DEG](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/data_DEG) as input for the following analysis.
+
+#### 6.1 Differential Expression Analysis with DESeq2
+
+Differential Expression Analysis is a method to identify genes whose expression levels differ significantly across experimental conditions. DESeq2 is a popular R package designed for this purpose.
+
+```R
+# -----------------------------
+# Load Libraries and Data Preparation
+# -----------------------------
+library(DESeq2)
+
+# Read in the raw count data and extract the columns containing count data
+raw_count <- read.csv('./raw_counts.csv')
+count_data <- raw_count[,2:5]
+row.names(count_data) <- raw_count[,1]
+
+# Define experimental conditions and prepare sample information
+condition <- factor(c('trt','trt','untrt','untrt'), levels = c('trt','untrt'))
+col_data <- data.frame(row.names = colnames(count_data), condition)
 
 
+# -----------------------------
+# Differential Expression Analysis
+# -----------------------------
+# Create DESeq dataset object, filter out low count genes, and perform differential expression analysis
+dds <- DESeqDataSetFromMatrix(countData = count_data, colData = col_data, design = ~ condition)
+dds_filter <- dds[rowSums(counts(dds)) > 1, ]
+dds_out <- DESeq(dds_filter)
 
+# Extract and order the results, and identify differentially expressed genes based on criteria
+res <- results(dds_out)
+res <- res[order(res$padj),]
+diff_gene <- subset(res, res$padj < 0.01 & (res$log2FoldChange > 1 | res$log2FoldChange < -1))
+
+# Save the differentially expressed genes to a CSV file
+write.csv(diff_gene, file = 'DEG.csv')
+
+
+# -----------------------------
+# Data Visualization
+# -----------------------------
+# Load necessary libraries and transform count data for visualization
+library(genefilter)
+library(pheatmap)
+rld <- rlogTransformation(dds_out, blind = F)
+
+# Identify and extract top variable genes for visualization
+topVarGene <- head(order(rowVars(assay(rld)), decreasing = TRUE), 20)
+mat <- assay(rld)[topVarGene, ]
+
+# Generate a heatmap of the top variable genes
+pheatmap(mat)
 ```
 
+![img]([DEG_heatmap.png](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/blob/main/figures/DEG_heatmap.png))
+
+#### 6.2 Functional Annotation with clusterProfiler
+
+Functional annotation helps interpret the biological significance of the differentially expressed genes.
+
+```R
+# -----------------------------
+# Functional Annotation and Enrichment Analysis
+# -----------------------------
+
+# Load necessary libraries for enrichment analysis
+library(clusterProfiler)
+library(DOSE)
+library(org.Hs.eg.db)
+
+# Read the differentially expressed genes and extract gene symbols
+sig.gene <- read.csv(file="DEG.csv")
+gene <- sig.gene[,1]
+
+# Convert gene symbols to other identifiers, including ENTREZID and ENSEMBL
+gene.df <- bitr(gene, fromType = "SYMBOL", 
+              toType = c("ENTREZID","ENSEMBL"),
+              OrgDb = org.Hs.eg.db)
+
+# Extract unique ENTREZIDs for enrichment analysis
+genelist <- gene.df$ENTREZID
+gene_list <- genelist[!duplicated(genelist)]
+
+# Perform Gene Ontology (GO) enrichment analysis
+go <- enrichGO(gene_list, OrgDb = org.Hs.eg.db, ont='ALL', pAdjustMethod = 'BH', pvalueCutoff = 0.05, 
+               qvalueCutoff = 0.2, keyType = 'ENTREZID')
+
+# Display the number of enriched terms in each GO category: Biological Process (BP), Cellular Component (CC), and Molecular Function (MF)
+dim(go[go$ONTOLOGY=='BP',])
+dim(go[go$ONTOLOGY=='CC',])
+dim(go[go$ONTOLOGY=='MF',])
+
+# Visualize the enriched GO terms using bar and dot plots
+barplot(go, showCategory=5, drop=T)
+dotplot(go, showCategory=5)
 ```
 
