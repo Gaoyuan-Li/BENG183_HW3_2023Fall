@@ -4,7 +4,7 @@
 
 #### Introduction
 
-Welcome to this tutorial on executing an RNA-seq analysis pipeline. RNA-sequencing (RNA-seq) has revolutionized our ability to analyze gene expression profiles in a high-throughput manner. This tutorial is designed to guide you step by step through the processes of quality control, alignment, and quantification of RNA-seq data using popular bioinformatics tools.
+Welcome to HW3 tutorial on executing an RNA-seq analysis pipeline. RNA-sequencing (RNA-seq) has revolutionized our ability to analyze gene expression profiles in a high-throughput manner. This tutorial is designed to guide you step by step through the processes of quality control, alignment, and quantification of RNA-seq data using popular bioinformatics tools.
 
 #### Objectives
 
