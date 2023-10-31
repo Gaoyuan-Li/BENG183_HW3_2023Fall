@@ -293,7 +293,7 @@ mat <- assay(rld)[topVarGene, ]
 pheatmap(mat)
 ```
 
-![img]([DEG_heatmap.png](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/figures/DEG_heatmap.png))
+![DEG_heatmap](./figures/DEG_heatmap.png))
 
 #### 6.2 Functional Annotation with clusterProfiler
 
