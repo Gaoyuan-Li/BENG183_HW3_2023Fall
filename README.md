@@ -39,11 +39,11 @@ By the end of this tutorial, you should be able to:
 
 
 
-# **Let's begin!**
+# Let's begin!
 
-### 1. Setting up the environment and downloading data
+## 1. Setting up the environment and downloading data
 
-#### 1.1 Conda environment
+### 1.1 Conda environment
 
 ```bash
 # create a new environment
@@ -69,7 +69,7 @@ conda env create -f environment.yml
 
 Please change the prefix to your own path.
 
-#### 1.2 Sequencing files
+### 1.2 Sequencing files
 
 Please download the sequencing files from the following link: https://drive.google.com/file/d/12qNoEYrJk6xbInxLHX3jOZXimvWLVSB6/view?usp=sharing
 
@@ -83,13 +83,13 @@ To unzip a gzip-compressed file, you can use the `gzip` command with the `-d` op
 gzip -d ERR188044_chrX_1.fastq.gz
 ```
 
-### 2. Quality Control with FastQC
+## 2. Quality Control with FastQC
 
-#### 2.1 **Why Quality Control is Crucial for RNA-seq Data**
+### 2.1 Why Quality Control is Crucial for RNA-seq Data
 
 Before processing and analyzing RNA-seq data, it's essential to assess its quality. High-quality data will lead to more accurate downstream analyses, whereas low-quality data can introduce biases and inaccuracies. Quality control (QC) helps identify issues such as sequencing errors, contamination, and biases, allowing for informed decisions on further data processing steps.
 
-#### 2.2 **Running FastQC on Raw Sequencing Data**
+### 2.2 **Running FastQC on Raw Sequencing Data**
 
 ```bash
 mkdir fastqc
@@ -102,7 +102,7 @@ fastqc -o fastqc/ -t 16 data_chrX/ERR188044_chrX_1.fastq
 - `-t 16`: Tells FastQC to use 16 threads for the analysis, speeding up the process.
 - `data_chrX/ERR188044_chrX_1.fastq`: Specifies the input file, which is a FASTQ file containing the raw sequencing reads.
 
-#### 2.3 **Interpreting FastQC Reports**
+### 2.3 **Interpreting FastQC Reports**
 
 After running FastQC, you'll get a `.html` report that provides various metrics and visualizations to assess the quality of your RNA-seq data:
 
@@ -118,15 +118,15 @@ After running FastQC, you'll get a `.html` report that provides various metrics 
 10. **Overrepresented Sequences**: Lists sequences that appear more often than expected.
 11. **Adapter Content**: Checks for the presence of adapter sequences, which can occur when the insert is shorter than the read length.
 
-### 3. Reads Trimming and Filtering with Fastp
+## 3. Reads Trimming and Filtering with Fastp
 
-#### 3.1 Introduction to Trimming and Fastp
+### 3.1 Introduction to Trimming and Fastp
 
 After initial quality control checks, raw sequencing data often requires preprocessing to improve the quality of the reads. This preprocessing step, known as "trimming," involves removing low-quality bases, sequencing adapters, and other unwanted sequences from the raw reads.
 
 Fastp is a versatile tool that not only trims the reads but also provides additional filtering options. It's designed to handle both single-end and paired-end data efficiently. By using Fastp, researchers can ensure that only high-quality reads proceed to the alignment stage, thus improving the accuracy of downstream analyses.
 
-#### 3.2 Running Fastp to Clean Up Raw Sequencing Data
+### 3.2 Running Fastp to Clean Up Raw Sequencing Data
 
 ```
 fastp -i data_chrX/ERR188044_chrX_1.fastq -I data_chrX/ERR188044_chrX_2.fastq -o data_chrX/ERR188044_chrX_1_clean.fastq -O data_chrX/ERR188044_chrX_2_clean.fastq
@@ -138,13 +138,13 @@ fastp -i data_chrX/ERR188044_chrX_1.fastq -I data_chrX/ERR188044_chrX_2.fastq -o
 - `-o data_chrX/ERR188044_chrX_1_clean.fastq`: Specifies the output file for the trimmed and cleaned first read.
 - `-O data_chrX/ERR188044_chrX_2_clean.fastq`: Specifies the output file for the trimmed and cleaned second read.
 
-### 4. Aligning Reads to the Reference Genome with STAR
+## 4. Aligning Reads to the Reference Genome with STAR
 
-#### 4.1 Understanding the Significance of Read Alignment
+### 4.1 Understanding the Significance of Read Alignment
 
 After the preprocessing steps, the next crucial step in the RNA-seq pipeline is aligning the reads to a reference genome. This allows us to determine the origin of each read in the genome and subsequently quantify gene expression levels. STAR (Spliced Transcripts Alignment to a Reference) is a widely used tool for this purpose, known for its speed and accuracy, especially when dealing with RNA-seq data that contains spliced transcripts.
 
-#### 4.2 Checking if STAR is Installed Properly
+### 4.2 Checking if STAR is Installed Properly
 
 Before we start the alignment, it's essential to ensure that STAR is correctly installed and accessible:
 
@@ -156,7 +156,7 @@ STAR -h
 
 If STAR is installed correctly, it will display a list of its options and parameters. If not, you'll need to troubleshoot the installation.
 
-#### 4.3 Build Index for Reference Genome
+### 4.3 Build Index for Reference Genome
 
 Before aligning reads, STAR requires an indexed version of the reference genome. Indexing makes the alignment process faster and more efficient. Here's how you can build this index:
 
@@ -175,7 +175,7 @@ STAR --runThreadN 16 --runMode genomeGenerate --genomeDir chrX_STAR_index/ --gen
 
 After this step, the `chrX_STAR_index/` directory will contain several files that constitute the genome index. With the index in place, you're now set to align your RNA-seq reads to the reference genome using STAR.
 
-#### 4.4 Aligning Reads to the Reference Genome Using STAR
+### 4.4 Aligning Reads to the Reference Genome Using STAR
 
 With the indexed reference genome in place, you can now align your RNA-seq reads to the reference. This alignment process will map each read to its most likely origin in the genome, taking into account possible splicing events.
 
@@ -203,13 +203,13 @@ STAR --runThreadN 16 --genomeDir chrX_STAR_index/ --readFilesIn data_chrX/ERR188
 
 `ERR188044_STAR_SJ.out.tab`: A file listing the splice junctions detected during the alignment. This can be useful for detecting novel splicing events or comparing to known annotations.
 
-### 5. Gene Expression Quantification with FeatureCounts
+## 5. Gene Expression Quantification with FeatureCounts
 
-#### 5.1 Introduction to Quantification
+### 5.1 Introduction to Quantification
 
 After successfully aligning RNA-seq reads to a reference genome, the next critical step is quantifying gene expression levels. This process involves counting how many reads align to each gene, which provides a measure of that gene's expression level in the sample. FeatureCounts is a fast and accurate program for this purpose, capable of processing both single-end and paired-end RNA-seq data.
 
-#### 5.2 Running FeatureCounts for Gene Expression Quantification
+### 5.2 Running FeatureCounts for Gene Expression Quantification
 
 ```
 mkdir featureCounts
@@ -234,13 +234,13 @@ By examining the `ERR188044_counts.txt` file, you will see a table where each ro
 
 With the gene expression quantified, you can now proceed to downstream analyses, such as differential expression analysis, clustering, or pathway analysis, depending on your research questions.
 
-### 6. Differentially expressed genes (BONUS)
+## 6. Differentially expressed genes (BONUS)
 
-#### 6.1 Downloading data
+### 6.1 Downloading data
 
 Please download the raw_counts.csv from [data_DEG](https://github.com/Gaoyuan-Li/BENG183_HW3_2023Fall/tree/main/data_DEG) as input for the following analysis.
 
-#### 6.1 Differential Expression Analysis with DESeq2
+### 6.1 Differential Expression Analysis with DESeq2
 
 Differential Expression Analysis is a method to identify genes whose expression levels differ significantly across experimental conditions. DESeq2 is a popular R package designed for this purpose.
 
@@ -293,9 +293,9 @@ mat <- assay(rld)[topVarGene, ]
 pheatmap(mat)
 ```
 
-![DEG_heatmap](./figures/DEG_heatmap.png))
+![DEG_heatmap](./figures/DEG_heatmap.png)
 
-#### 6.2 Functional Annotation with clusterProfiler
+### 6.2 Functional Annotation with clusterProfiler
 
 Functional annotation helps interpret the biological significance of the differentially expressed genes.
 
